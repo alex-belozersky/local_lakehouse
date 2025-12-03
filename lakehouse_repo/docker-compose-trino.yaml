@@ -19,8 +19,7 @@ services:
       - ./trino_config/catalog:/etc/trino/catalog
       - ./trino_config/coordinator/init.sql:/etc/trino/init.sql
       - ./trino_config/password-authenticator.properties:/etc/trino/password-authenticator.properties
-      - ./trino_config/password.db:/etc/trino/password.db
-    command: /usr/lib/trino/bin/run-trino
+      - ./trino_config/password.db:/etc/trino/password.db:ro
 
   trino-worker-1:
     image: trinodb/trino:476
