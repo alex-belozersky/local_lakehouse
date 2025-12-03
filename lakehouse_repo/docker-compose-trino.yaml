@@ -20,16 +20,15 @@ services:
     command: >
       bash -c "
         /usr/lib/trino/bin/run-trino &
-        PID=\$! &&
-        sleep 30 &&
-        /usr/lib/trino/bin/trino \
+        sleep 40
+        trino \
           --server http://localhost:8080 \
-          --user \${TRINO_USERNAME:-trino} \
-          --password \${TRINO_PASSWORD:-trino} \
-          --file /etc/trino/init.sql &&
-        wait \$PID
+          --user $${TRINO_USERNAME:-trino} \
+          --password $${TRINO_PASSWORD:-trino} \
+          --file /etc/trino/init.sql
+        wait
       "
-
+      
   trino-worker-1:
     image: trinodb/trino:476
     container_name: trino-worker-1

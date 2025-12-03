@@ -51,19 +51,6 @@ start_services() {
   load_env
 
   echo "All services started successfully."
-  echo
-  echo "Service Access Information:"
-  echo "  - MinIO Console:  http://localhost:9001"
-  echo "      user: ${MINIO_ROOT_USER}"
-  echo "      pass: ${MINIO_ROOT_PASSWORD}"
-  echo "  - Trino Web UI:   http://localhost:${TRINO_PORT}"
-  echo "      user: ${TRINO_USERNAME}"
-  echo "      pass: ${TRINO_PASSWORD}"
-  echo "  - Airflow Web UI: http://localhost:${AIRFLOW_API_PORT}"
-  echo "      user: ${AIRFLOW_USERNAME}"
-  echo "      pass: ${AIRFLOW_PASSWORD}"
-  echo "  - Nessie API:     http://localhost:19120"
-  echo
 }
 init_trino() {
   echo "Initializing Trino schemas..."

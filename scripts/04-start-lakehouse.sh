@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HOST_IP="$(hostname -I | awk '{print $1}')"
+HOST_IP="$(hostname -I | tr ' ' '\n' | grep -v '^172\.1[7-9]\.' | grep -v '^172\.2[0-9]\.' | grep -v '^172\.3[0-1]\.' | head -1)"
+
+if [ -z "$HOST_IP" ]; then
+  HOST_IP="$(hostname -I | awk '{print $1}')"
+fi
 
 BASE_DIR="${LAKEHOUSE_HOME:-/opt}"
 ROOT_DIR="${BASE_DIR%/}/lakehouse_repo"
