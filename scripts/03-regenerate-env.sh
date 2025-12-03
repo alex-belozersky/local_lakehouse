@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="${LAKEHOUSE_HOME:-/opt/lakehouse_repo}"
+BASE_DIR="${LAKEHOUSE_HOME:-/opt}"
+REPO="${BASE_DIR%/}/lakehouse_repo"
 ENV_FILE="${REPO}/.env"
 GENERATE_ENV_SCRIPT="${LAKEHOUSE_SCRIPTS_HOME:-/opt/scripts}/03-generate-env.sh"
 
@@ -33,4 +34,3 @@ echo "-----------------------------------------"
 echo "Environment regeneration completed."
 echo "Start the lakehouse stack with:"
 echo "  ${LAKEHOUSE_SCRIPTS_HOME:-/opt/scripts}/04-start-lakehouse.sh"
-echo

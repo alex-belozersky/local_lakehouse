@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="${LAKEHOUSE_HOME:-/opt/lakehouse_repo}"
+BASE_DIR="${LAKEHOUSE_HOME:-/opt}"
+ROOT_DIR="${BASE_DIR%/}/lakehouse_repo"
 
 if [ ! -d "$ROOT_DIR" ]; then
   echo "Lakehouse repo not found at: ${ROOT_DIR}"

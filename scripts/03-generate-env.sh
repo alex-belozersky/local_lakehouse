@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="${LAKEHOUSE_HOME:-/opt/lakehouse_repo}"
+BASE_DIR="${LAKEHOUSE_HOME:-/opt}"
+REPO="${BASE_DIR%/}/lakehouse_repo"
 ENV_FILE="${REPO}/.env"
 
 if [ ! -d "$REPO" ]; then
