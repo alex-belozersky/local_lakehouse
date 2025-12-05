@@ -18,7 +18,8 @@ apt-get install $APT_OPTS \
   curl \
   git \
   openssl \
-  lsb-release
+  lsb-release \
+  apache2-utils
 
 echo "Installing Docker (official repo)..."
 
@@ -65,4 +66,3 @@ echo "   Without relogin 'docker ps' will show 'permission denied'."
 echo
 echo "============================================================"
 echo
-

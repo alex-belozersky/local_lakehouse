@@ -12,8 +12,8 @@ services:
       MINIO_REGION_NAME: us-east-1
       MINIO_REGION: us-east-1
       MINIO_DOMAIN: minio
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -26,7 +26,7 @@ services:
       /bin/sh -c "
       minio server /data --console-address ':9001' &
       sleep 5;
-      mc alias set batman http://localhost:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      mc alias set batman http://localhost:9000 admin password;
       mc mb batman/local-lakehouse;
       tail -f /dev/null"
 
