@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="https://github.com/itslavrov/lakehouse-devkit.git"
+REPO_URL="https://github.com/alex-belozersky/lakehouse-devkit.git"
 BRANCH="main"
 SPARSE_PATH="lakehouse_repo"
 
