@@ -3,6 +3,12 @@
 This project provides an automated **Lakehouse environment** based on **MinIO, Nessie, Trino, and Airflow**.
 The setup supports fast provisioning both **locally** and in **VK Cloud**, using scripts, Docker Compose, Packer, Ansible, and Terraform.
 
+### Alex Belozersky
+
+[Telegram](https://t.me/analyticsfromzero)
+
+[Курс - Lakehouse для аналитиков и инженеров данных](https://devhands.ru/lakehouse)
+
 ## Repository Structure
 
 * **lakehouse_repo/** – the Lakehouse components (Docker Compose, configs, Trino, MinIO, Nessie, Airflow, DBT, DAGs).
