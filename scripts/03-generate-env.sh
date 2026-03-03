@@ -48,6 +48,23 @@ TRINO_PORT=8080
 AIRFLOW_API_PORT=8081
 
 AIRFLOW_UID=50000
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres
+
+AIRFLOW_DB=airflow_db
+AIRFLOW_DB_USER=airflow_user
+AIRFLOW_DB_PASS=$(random_hex)
+
+POLARIS_DB=polaris_db
+POLARIS_DB_USER=polaris_user
+POLARIS_DB_PASS=$(random_hex)
+
+TRINO_DB=trino_db
+TRINO_DB_USER=trino_user
+TRINO_DB_PASS=$(random_hex)
+
 EOF
 
 echo ".env created at ${ENV_FILE}"
