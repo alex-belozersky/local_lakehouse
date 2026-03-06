@@ -12,20 +12,20 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: "http://airflow-apiserver:8080/execution/"
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
-    
+
     TRINO_USERNAME: ${TRINO_USERNAME:-trino}
     TRINO_PASSWORD: ${TRINO_PASSWORD}
     TRINO_PORT: ${TRINO_PORT:-8080}
-    
+
     MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
     MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    
+
     NESSIE_USERNAME: ${NESSIE_USERNAME:-nessie}
     NESSIE_PASSWORD: ${NESSIE_PASSWORD}
-    
+
     AIRFLOW_USERNAME: ${AIRFLOW_USERNAME:-airflow}
     AIRFLOW_PASSWORD: ${AIRFLOW_PASSWORD}
-    
+
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     AIRFLOW_CONFIG: "/opt/airflow/config/airflow.cfg"
   volumes:
@@ -55,6 +55,10 @@ services:
       retries: 50
       start_period: 30s
     restart: always
+    networks:
+      lakehouse-net:
+        aliases:
+          - redis
 
   airflow-apiserver:
     <<: *airflow-common
