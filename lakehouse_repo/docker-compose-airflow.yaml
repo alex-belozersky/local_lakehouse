@@ -37,8 +37,10 @@ x-airflow-common: &airflow-common
   depends_on: &airflow-common-depends-on
     redis:
       condition: service_healthy
-    postgres:
-      condition: service_healthy
+
+  networks:
+    - lakehouse-net
+
 
 services:
 
@@ -218,3 +220,8 @@ services:
 
 volumes:
   postgres-db-volume:
+
+
+networks:
+  lakehouse-net:
+    external: true
