@@ -2,6 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+NETWORK="lakehouse-net"
 
 for script in create-password-db.sh generate-configs.sh; do
   if [ -f "$SCRIPT_DIR/trino_config/$script" ] && [ ! -x "$SCRIPT_DIR/trino_config/$script" ]; then
@@ -30,7 +31,10 @@ start_services() {
     ./trino_config/create-password-db.sh
   fi
 
-  docker network create lakehouse-net
+
+  if ! docker network inspect "$NETWORK" >/dev/null 2>&1; then
+    docker network create "$NETWORK"
+  fi
 
   docker compose -f docker-compose-common.yaml up -d
   sleep 5
