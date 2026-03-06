@@ -30,6 +30,11 @@ start_services() {
     ./trino_config/create-password-db.sh
   fi
 
+  docker network create lakehouse-net
+
+  docker compose -f docker-compose-common.yaml up -d
+  sleep 5
+
   docker compose -f docker-compose-lake.yaml up -d
   sleep 5
 
@@ -68,6 +73,7 @@ stop_services() {
   docker compose -f docker-compose-airflow.yaml down -v
   docker compose -f docker-compose-trino.yaml down -v
   docker compose -f docker-compose-lake.yaml down -v
+  docker compose -f docker-compose-common.yaml down -v
 
   echo "Services stopped"
 }
