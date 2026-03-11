@@ -12,6 +12,10 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
       - NESSIE_USERNAME=${NESSIE_USERNAME:-nessie}
       - NESSIE_PASSWORD=${NESSIE_PASSWORD}
+      - POLARIS_CLIENT_ID=${POLARIS_CLIENT_ID}
+      - POLARIS_CLIENT_SECRET=${POLARIS_CLIENT_SECRET}
+      - POLARIS_SCOPE=${POLARIS_SCOPE}
+      - POLARIS_WAREHOUSE_NAME=${POLARIS_WAREHOUSE_NAME}
     volumes:
       - ./trino_config/coordinator/config.properties:/etc/trino/config.properties
       - ./trino_config/catalog:/etc/trino/catalog
@@ -35,9 +39,15 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
       - NESSIE_USERNAME=${NESSIE_USERNAME:-nessie}
       - NESSIE_PASSWORD=${NESSIE_PASSWORD}
+      - POLARIS_CLIENT_ID=${POLARIS_CLIENT_ID}
+      - POLARIS_CLIENT_SECRET=${POLARIS_CLIENT_SECRET}
+      - POLARIS_SCOPE=${POLARIS_SCOPE}
+      - POLARIS_WAREHOUSE_NAME=${POLARIS_WAREHOUSE_NAME}
     volumes:
       - ./trino_config/worker/config.properties:/etc/trino/config.properties
       - ./trino_config/catalog:/etc/trino/catalog
+    networks:
+      lakehouse-net:
 
   trino-worker-2:
     image: trinodb/trino:476
@@ -50,9 +60,15 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
       - NESSIE_USERNAME=${NESSIE_USERNAME:-nessie}
       - NESSIE_PASSWORD=${NESSIE_PASSWORD}
+      - POLARIS_CLIENT_ID=${POLARIS_CLIENT_ID}
+      - POLARIS_CLIENT_SECRET=${POLARIS_CLIENT_SECRET}
+      - POLARIS_SCOPE=${POLARIS_SCOPE}
+      - POLARIS_WAREHOUSE_NAME=${POLARIS_WAREHOUSE_NAME}
     volumes:
       - ./trino_config/worker/config.properties:/etc/trino/config.properties
       - ./trino_config/catalog:/etc/trino/catalog
+    networks:
+      lakehouse-net:
 
 networks:
   lakehouse-net:

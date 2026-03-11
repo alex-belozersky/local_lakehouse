@@ -65,6 +65,17 @@ TRINO_DB=trino_db
 TRINO_DB_USER=trino_user
 TRINO_DB_PASS=$(random_hex)
 
+# Deterministic root principal for Polaris
+POLARIS_REALM=default-realm
+POLARIS_CLIENT_ID=root
+POLARIS_CLIENT_SECRET=polaris-root-secret-change-me
+POLARIS_BOOTSTRAP_CREDENTIALS=[{"principal":"root","secret":"polaris-root-secret-change-me","realm":"default-realm"}]
+
+POLARIS_WAREHOUSE_NAME=default
+POLARIS_ALLOWED_LOCATION=s3://local-lakehouse/
+POLARIS_DEFAULT_BASE_LOCATION=s3://local-lakehouse/
+POLARIS_SCOPE=PRINCIPAL_ROLE:ALL
+
 EOF
 
 echo ".env created at ${ENV_FILE}"
