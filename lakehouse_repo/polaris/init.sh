@@ -15,6 +15,10 @@ ALLOWED_LOCATION="${POLARIS_ALLOWED_LOCATION:?POLARIS_ALLOWED_LOCATION is requir
 DEFAULT_BASE_LOCATION="${POLARIS_DEFAULT_BASE_LOCATION:?POLARIS_DEFAULT_BASE_LOCATION is required}"
 S3_ROLE_ARN="${POLARIS_S3_ROLE_ARN:?POLARIS_S3_ROLE_ARN is required}"
 
+S3_ENDPOINT="${POLARIS_S3_ENDPOINT:?POLARIS_S3_ENDPOINT is required}"
+S3_REGION="${POLARIS_S3_REGION:-us-east-1}"
+S3_PATH_STYLE_ACCESS="${POLARIS_S3_PATH_STYLE_ACCESS:-true}"
+
 REALM_HEADERS=()
 if [[ -n "${REALM}" ]]; then
   REALM_HEADERS=(-H "Polaris-Realm: ${REALM}")
@@ -30,6 +34,10 @@ echo "[polaris-init] POLARIS_DEFAULT_BASE_LOCATION=${DEFAULT_BASE_LOCATION}"
 echo "[polaris-init] POLARIS_S3_ROLE_ARN=${S3_ROLE_ARN}"
 
 echo "[polaris-init] Waiting for Polaris API..."
+
+echo "[polaris-init] POLARIS_S3_ENDPOINT=${S3_ENDPOINT}"
+echo "[polaris-init] POLARIS_S3_REGION=${S3_REGION}"
+echo "[polaris-init] POLARIS_S3_PATH_STYLE_ACCESS=${S3_PATH_STYLE_ACCESS}"
 
 until curl -sS -o /dev/null "${POLARIS_CATALOG_BASE}/api/catalog/v1/config"; do
   echo "[polaris-init] Waiting for Polaris API..."
@@ -111,6 +119,9 @@ CREATE_PAYLOAD="$(
     --arg defaultBaseLocation "${DEFAULT_BASE_LOCATION}" \
     --arg allowedLocation "${ALLOWED_LOCATION}" \
     --arg roleArn "${S3_ROLE_ARN}" \
+    --arg endpoint "${S3_ENDPOINT}" \
+    --arg region "${S3_REGION}" \
+    --argjson pathStyleAccess "${S3_PATH_STYLE_ACCESS}" \
     '{
       catalog: {
         name: $name,
@@ -123,7 +134,10 @@ CREATE_PAYLOAD="$(
           allowedLocations: [
             $allowedLocation
           ],
-          roleArn: $roleArn
+          roleArn: $roleArn,
+          endpoint: $endpoint,
+          region: $region,
+          pathStyleAccess: $pathStyleAccess
         }
       }
     }'

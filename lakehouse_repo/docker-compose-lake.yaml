@@ -39,6 +39,7 @@ services:
         aliases:
           - minio
           - s3
+          - rest-lakehouse.minio
 
 
   minio-init:
@@ -116,6 +117,9 @@ services:
       POLARIS_ALLOWED_LOCATION: "${POLARIS_ALLOWED_LOCATION}"
       POLARIS_DEFAULT_BASE_LOCATION: "${POLARIS_DEFAULT_BASE_LOCATION}"
       POLARIS_S3_ROLE_ARN: "${POLARIS_S3_ROLE_ARN}"
+      POLARIS_S3_ENDPOINT: http://minio:9000
+      POLARIS_S3_REGION: us-east-1
+      POLARIS_S3_PATH_STYLE_ACCESS: "true"
     volumes:
       - ./polaris:/init:ro
     networks:
