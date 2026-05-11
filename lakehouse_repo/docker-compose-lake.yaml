@@ -42,26 +42,31 @@ services:
 
 
   polaris:
-    image: apache/polaris:1.3.0-incubating   # <-- замените на реальный образ/тег Polaris, который вы используете
-    container_name: polaris
+    image: alexmerced/polaris1126
+    platform: linux/amd64
     ports:
-      - "${POLARIS_PORT:-8181}:8181"
-      - "${POLARIS_MGMT_PORT:-8182}:8182"
+      - "8181:8181"
+      - "8182:8182"
+    networks:
+      - lakehouse-net
     environment:
       POLARIS_DB_URL: "jdbc:postgresql://postgres:5432/${POLARIS_DB}"
       POLARIS_DB_USER: "${POLARIS_DB_USER}"
       POLARIS_DB_PASSWORD: "${POLARIS_DB_PASS}"
 
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: password
+      AWS_REGION: us-east-1
+      AWS_ENDPOINT_URL_S3: http://minio:9000
+      AWS_ENDPOINT_URL_STS: http://minio:9000
       POLARIS_BOOTSTRAP_CREDENTIALS: "${POLARIS_BOOTSTRAP_CREDENTIALS}"
-
-      POLARIS_S3_ENDPOINT: "http://minio:9000"
-      POLARIS_S3_ACCESS_KEY: "admin"
-      POLARIS_S3_SECRET_KEY: "password"
-      POLARIS_S3_REGION: "us-east-1"
-      POLARIS_WAREHOUSE: "s3://local-lakehouse/"
-    networks:
-      lakehouse-net:
-        aliases: [ polaris ]
+      polaris.realm-context.realms: "${POLARIS_REALM}"
+      polaris.features.DROP_WITH_PURGE_ENABLED: "true"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8181/healthcheck"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     depends_on:
       - minio
 
@@ -77,18 +82,20 @@ services:
       - |
         set -e
         apk add --no-cache curl jq bash
-        /init/init.sh
+        bash /init/init.sh
     environment:
-      - POLARIS_CATALOG_BASE=http://polaris:8181
-      - POLARIS_MGMT_BASE=http://polaris:8181
+      POLARIS_CATALOG_BASE: http://polaris:8181
+      POLARIS_MGMT_BASE: http://polaris:8181
 
-      - POLARIS_CLIENT_ID=${POLARIS_CLIENT_ID}
-      - POLARIS_CLIENT_SECRET=${POLARIS_CLIENT_SECRET}
-      - POLARIS_SCOPE=${POLARIS_SCOPE}
+      POLARIS_CLIENT_ID: "${POLARIS_CLIENT_ID}"
+      POLARIS_CLIENT_SECRET: "${POLARIS_CLIENT_SECRET}"
+      POLARIS_SCOPE: "${POLARIS_SCOPE}"
+      POLARIS_REALM: "${POLARIS_REALM}"
 
-      - POLARIS_WAREHOUSE_NAME=${POLARIS_WAREHOUSE_NAME}
-      - POLARIS_ALLOWED_LOCATION=${POLARIS_ALLOWED_LOCATION}
-      - POLARIS_DEFAULT_BASE_LOCATION=${POLARIS_DEFAULT_BASE_LOCATION}
+      POLARIS_WAREHOUSE_NAME: "${POLARIS_WAREHOUSE_NAME}"
+      POLARIS_ALLOWED_LOCATION: "${POLARIS_ALLOWED_LOCATION}"
+      POLARIS_DEFAULT_BASE_LOCATION: "${POLARIS_DEFAULT_BASE_LOCATION}"
+      POLARIS_S3_ROLE_ARN: "${POLARIS_S3_ROLE_ARN}"
     volumes:
       - ./polaris:/init:ro
     networks:

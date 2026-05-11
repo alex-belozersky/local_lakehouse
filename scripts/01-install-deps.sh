@@ -17,6 +17,7 @@ apt-get install $APT_OPTS \
   ca-certificates \
   curl \
   git \
+  tree \
   openssl \
   lsb-release \
   apache2-utils
