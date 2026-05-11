@@ -41,6 +41,26 @@ services:
           - s3
 
 
+  minio-init:
+    image: minio/mc:latest
+    container_name: minio-init
+    depends_on:
+      - minio
+    environment:
+      MINIO_ENDPOINT: "${MINIO_ENDPOINT:-http://minio:9000}"
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+      MINIO_BUCKETS: "${MINIO_BUCKETS}"
+      MINIO_INIT_WRITE_TEST: "${MINIO_INIT_WRITE_TEST:-false}"
+    volumes:
+      - ./minio/01-minio-init.sh:/usr/local/bin/01-minio-init.sh:ro
+    entrypoint:
+      - /bin/sh
+      - /usr/local/bin/01-minio-init.sh
+    networks:
+      - lakehouse-net
+    restart: "no"
+
   polaris:
     image: alexmerced/polaris1126
     platform: linux/amd64
