@@ -49,12 +49,15 @@ services:
       JUPYTER_ENABLE_LAB: "yes"
 
     volumes:
-      - ./jupyterhub/jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py:ro
+      - ./jupyterhub/jupyterhub_config.py:/etc/jupyterhub/jupyterhub_config.py:ro
       - ./jupyterhub/start-jupyterhub.sh:/usr/local/bin/start-jupyterhub.sh:ro
       - ./notebooks:/home/jovyan/work
       - jupyterhub-runtime:/srv/jupyterhub/runtime
 
-    command:
+    entrypoint:
+      - tini
+      - -g
+      - --
       - /bin/bash
       - /usr/local/bin/start-jupyterhub.sh
 

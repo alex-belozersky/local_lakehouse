@@ -18,12 +18,18 @@ AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-}"
 S3_ENDPOINT="${S3_ENDPOINT:-http://minio:9000}"
 S3_PATH_STYLE_ACCESS="${S3_PATH_STYLE_ACCESS:-true}"
 
+echo "Starting JupyterHub as user: $(id)"
+echo "JupyterHub login user: ${JUPYTERHUB_USER}"
+
 mkdir -p /srv/jupyterhub/runtime
 mkdir -p "${JUPYTERHUB_NOTEBOOK_DIR}"
 mkdir -p "/home/${JUPYTERHUB_USER}/.config/pyiceberg"
 
-chown -R "${JUPYTERHUB_USER}:users" /srv/jupyterhub
-chown -R "${JUPYTERHUB_USER}:users" "/home/${JUPYTERHUB_USER}"
+# Важно: не делаем chown -R /srv/jupyterhub,
+# потому что там могут быть read-only bind mounts.
+chown -R "${JUPYTERHUB_USER}:users" /srv/jupyterhub/runtime
+chown -R "${JUPYTERHUB_USER}:users" "${JUPYTERHUB_NOTEBOOK_DIR}"
+chown -R "${JUPYTERHUB_USER}:users" "/home/${JUPYTERHUB_USER}/.config"
 
 cat > "/home/${JUPYTERHUB_USER}/.config/pyiceberg/.pyiceberg.yaml" <<EOF
 catalog:
@@ -48,4 +54,4 @@ chmod 600 "/home/${JUPYTERHUB_USER}/.config/pyiceberg/.pyiceberg.yaml"
 echo "Generated PyIceberg config:"
 echo "/home/${JUPYTERHUB_USER}/.config/pyiceberg/.pyiceberg.yaml"
 
-exec jupyterhub -f /srv/jupyterhub/jupyterhub_config.py
+exec jupyterhub -f /etc/jupyterhub/jupyterhub_config.py
