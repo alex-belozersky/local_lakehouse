@@ -2,6 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+NETWORK="lakehouse-net"
 
 for script in create-password-db.sh generate-configs.sh; do
   if [ -f "$SCRIPT_DIR/trino_config/$script" ] && [ ! -x "$SCRIPT_DIR/trino_config/$script" ]; then
@@ -29,6 +30,14 @@ start_services() {
   if [ -x "./trino_config/create-password-db.sh" ]; then
     ./trino_config/create-password-db.sh
   fi
+
+
+  if ! docker network inspect "$NETWORK" >/dev/null 2>&1; then
+    docker network create "$NETWORK"
+  fi
+
+  docker compose -f docker-compose-common.yaml up -d
+  sleep 5
 
   docker compose -f docker-compose-lake.yaml up -d
   sleep 5
@@ -68,6 +77,7 @@ stop_services() {
   docker compose -f docker-compose-airflow.yaml down -v
   docker compose -f docker-compose-trino.yaml down -v
   docker compose -f docker-compose-lake.yaml down -v
+  docker compose -f docker-compose-common.yaml down -v
 
   echo "Services stopped"
 }

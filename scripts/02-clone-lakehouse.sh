@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_URL="https://github.com/alex-belozersky/local_lakehouse"
-BRANCH="main"
+BRANCH="${1:-main}"
 SPARSE_PATH="lakehouse_repo"
 
 BASE_DIR="${LAKEHOUSE_HOME:-/opt}"

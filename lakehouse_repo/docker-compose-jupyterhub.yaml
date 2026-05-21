@@ -1,0 +1,78 @@
+services:
+  jupyterhub:
+    build:
+      context: ./jupyterhub
+      dockerfile: Dockerfile
+    image: lakehouse-jupyterhub:latest
+    container_name: jupyterhub
+    user: root
+    restart: unless-stopped
+
+    ports:
+      - "${JUPYTERHUB_PORT:-8888}:8000"
+
+    environment:
+      # JupyterHub auth
+      JUPYTERHUB_USER: "${JUPYTERHUB_USER:-jovyan}"
+      JUPYTERHUB_PASSWORD: "${JUPYTERHUB_PASSWORD:-jupyter}"
+      JUPYTERHUB_NOTEBOOK_DIR: "/home/jovyan/work"
+
+      # Trino
+      TRINO_HOST: "${TRINO_HOST:-trino-coordinator}"
+      TRINO_PORT: "${TRINO_PORT:-8080}"
+      TRINO_USER: "${TRINO_USERNAME:-admin}"
+      TRINO_PASSWORD: "${TRINO_PASSWORD:-}"
+      TRINO_CATALOG: "${TRINO_CATALOG:-rest}"
+      TRINO_SCHEMA: "${TRINO_SCHEMA:-default}"
+
+      # Polaris / Iceberg REST catalog
+      POLARIS_CATALOG_NAME: "${POLARIS_CATALOG_NAME:-polaris}"
+      POLARIS_CATALOG_URI: "${POLARIS_CATALOG_URI:-http://polaris:8181/api/catalog}"
+      POLARIS_WAREHOUSE_NAME: "${POLARIS_WAREHOUSE_NAME:-default}"
+      POLARIS_REALM: "${POLARIS_REALM:-default-realm}"
+      POLARIS_CLIENT_ID: "${POLARIS_CLIENT_ID:-}"
+      POLARIS_CLIENT_SECRET: "${POLARIS_CLIENT_SECRET:-}"
+      POLARIS_SCOPE: "${POLARIS_SCOPE:-PRINCIPAL_ROLE:ALL}"
+
+      # MinIO / S3 for PyIceberg
+      AWS_REGION: "${AWS_REGION:-us-east-1}"
+      AWS_DEFAULT_REGION: "${AWS_REGION:-us-east-1}"
+      AWS_ACCESS_KEY_ID: "${MINIO_ROOT_USER}"
+      AWS_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD}"
+      AWS_ENDPOINT_URL: "${AWS_ENDPOINT_URL:-http://minio:9000}"
+      AWS_ENDPOINT_URL_S3: "${AWS_ENDPOINT_URL_S3:-http://minio:9000}"
+      S3_ENDPOINT: "${S3_ENDPOINT:-http://minio:9000}"
+      S3_PATH_STYLE_ACCESS: "${S3_PATH_STYLE_ACCESS:-true}"
+
+      # Useful defaults
+      PYTHONUNBUFFERED: "1"
+      JUPYTER_ENABLE_LAB: "yes"
+
+    volumes:
+      - ./jupyterhub/jupyterhub_config.py:/etc/jupyterhub/jupyterhub_config.py:ro
+      - ./jupyterhub/start-jupyterhub.sh:/usr/local/bin/start-jupyterhub.sh:ro
+      - ./notebooks:/home/jovyan/work
+      - jupyterhub-runtime:/srv/jupyterhub/runtime
+
+    entrypoint:
+      - tini
+      - -g
+      - --
+      - /bin/bash
+      - /usr/local/bin/start-jupyterhub.sh
+
+    networks:
+      - lakehouse-net
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/hub/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+networks:
+  lakehouse-net:
+    external: true
+
+volumes:
+  jupyterhub-runtime:

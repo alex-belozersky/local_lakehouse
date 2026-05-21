@@ -4,6 +4,11 @@ services:
     container_name: nessie-catalog
     ports:
       - "19120:19120"
+    networks:
+      lakehouse-net:
+        aliases:
+          - nessie
+          - nessie-catalog
 
   minio:
     image: minio/minio
@@ -29,4 +34,99 @@ services:
       mc alias set batman http://localhost:9000 admin password;
       mc mb batman/local-lakehouse;
       tail -f /dev/null"
+    networks:
+      lakehouse-net:
+        aliases:
+          - minio
+          - s3
+          - rest-lakehouse.minio
 
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: minio-init
+    depends_on:
+      - minio
+    environment:
+      MINIO_ENDPOINT: "${MINIO_ENDPOINT:-http://minio:9000}"
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+      MINIO_BUCKETS: "${MINIO_BUCKETS}"
+      MINIO_INIT_WRITE_TEST: "${MINIO_INIT_WRITE_TEST:-false}"
+    volumes:
+      - ./minio/01-minio-init.sh:/usr/local/bin/01-minio-init.sh:ro
+    entrypoint:
+      - /bin/sh
+      - /usr/local/bin/01-minio-init.sh
+    networks:
+      - lakehouse-net
+    restart: "no"
+
+  polaris:
+    image: alexmerced/polaris1126
+    platform: linux/amd64
+    ports:
+      - "8181:8181"
+      - "8182:8182"
+    networks:
+      - lakehouse-net
+    environment:
+      POLARIS_DB_URL: "jdbc:postgresql://postgres:5432/${POLARIS_DB}"
+      POLARIS_DB_USER: "${POLARIS_DB_USER}"
+      POLARIS_DB_PASSWORD: "${POLARIS_DB_PASS}"
+
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: password
+      AWS_REGION: us-east-1
+      AWS_ENDPOINT_URL_S3: http://minio:9000
+      AWS_ENDPOINT_URL_STS: http://minio:9000
+      POLARIS_BOOTSTRAP_CREDENTIALS: "${POLARIS_BOOTSTRAP_CREDENTIALS}"
+      polaris.realm-context.realms: "${POLARIS_REALM}"
+      polaris.features.DROP_WITH_PURGE_ENABLED: "true"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8181/healthcheck"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - minio
+
+
+  polaris-init:
+    image: alpine:3.20
+    container_name: polaris-init
+    depends_on:
+      - polaris
+    command:
+      - sh
+      - -lc
+      - |
+        set -e
+        apk add --no-cache curl jq bash
+        bash /init/init.sh
+    environment:
+      POLARIS_CATALOG_BASE: http://polaris:8181
+      POLARIS_MGMT_BASE: http://polaris:8181
+
+      POLARIS_CLIENT_ID: "${POLARIS_CLIENT_ID}"
+      POLARIS_CLIENT_SECRET: "${POLARIS_CLIENT_SECRET}"
+      POLARIS_SCOPE: "${POLARIS_SCOPE}"
+      POLARIS_REALM: "${POLARIS_REALM}"
+
+      POLARIS_WAREHOUSE_NAME: "${POLARIS_WAREHOUSE_NAME}"
+      POLARIS_ALLOWED_LOCATION: "${POLARIS_ALLOWED_LOCATION}"
+      POLARIS_DEFAULT_BASE_LOCATION: "${POLARIS_DEFAULT_BASE_LOCATION}"
+      POLARIS_S3_ROLE_ARN: "${POLARIS_S3_ROLE_ARN}"
+      POLARIS_S3_ENDPOINT: http://minio:9000
+      POLARIS_S3_REGION: us-east-1
+      POLARIS_S3_PATH_STYLE_ACCESS: "true"
+    volumes:
+      - ./polaris:/init:ro
+    networks:
+      - lakehouse-net
+    restart: "no"
+
+
+networks:
+  lakehouse-net:
+    external: true
